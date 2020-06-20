@@ -9,8 +9,8 @@ class Message {
 		return this.text.match("^[a-zA-Z0-9 ]*$") ? true : false;
 	}
 
+	// Implementation of a stream cipher using rc4. This will both encrypt and decrypt the message
 	encryption(key) {
-		// Implementation of a stream cipher using rc4
 		const swap = function(array, one, two) {
 			let temp = array[one];
 			array[one] = array[two];
@@ -46,19 +46,26 @@ class Message {
 	}
 
 	// This just creates an array of character codes from a string
-	str2Binary() {
-		this.text = this.text.split("").map((char) => char.charCodeAt(0));
+	str2CharCodes() {
+		this.text = this.text.split("").map(char => char.charCodeAt(0));
 		return this;
 	}
 
-	binary2Str() {
-		this.text = this.text.split(" ").map((val) => String.fromCharCode(parseInt(val, 2))).join("");
+	charCodes2Str() {
+		this.text = this.text.map(code => String.fromCharCode(code)).join("");
 		return this;
 	}
 
-	// Removes all spaces from binary message and adds end message flag
+	// Converts character codes to 8 size zero padded binary strings, joins into a single string, and ends end-message flag
 	prepareToHide() {
-		this.text = this.text.split(" ").join("");
+		// FOR TESTING I USE .join(" ") BUT WHEN FINISHED USE .join("")
+		this.text = this.text.map(code => code.toString(2)).join(" ");
+		return this;
+	}
+	
+	// Removes end-message flag, and converts to character codes
+	afterReveal() {
+		this.text = this.text.split(" ").map(binary => parseInt(binary, 2));
 		return this;
 	}
 };
@@ -71,12 +78,13 @@ const tester = function() {
 	console.assert(m2.isValid() === true, "numbers are valid", m2.isValid());
 	const m3 = new Message("'\\\"[]");
 	console.assert(m3.isValid() === false, "special characters aren't valid", m3.isValid());
-	// console.assert(m1.str2Binary().binary2Str().text === "hello world", "conversion to binary and back works");
+	console.assert(m1.str2CharCodes().prepareToHide().afterReveal().charCodes2Str().text === "hello world", "conversion to binary and back works");
 	const t1 = new Message("Wazzup world");
 	const t2 = new Message("Wazzup world");
-	console.assert(JSON.stringify(t1.str2Binary().encryption("password").encryption("password").text) === JSON.stringify(t2.str2Binary().text), "Running encryption twice with the same key results in the same text");
+	console.assert(JSON.stringify(t1.str2CharCodes().encryption("password").encryption("password").text) === JSON.stringify(t2.str2CharCodes().text), "Running encryption twice with the same key results in the same text");
 	// console.log(t1.text, t2.text);
 	console.assert(JSON.stringify(t1.encryption("password1234").text) !== JSON.stringify(t2.encryption("1234password")), "running encryption with different keys will not return the same text");
 	// console.log(t1.text, t2.text);
+	console.assert(m1.str2CharCodes().encryption("Wazzup").prepareToHide().afterReveal().encryption("Wazzup").charCodes2Str().text === "hello world", "the full sequence will not alter the original message by the end");
 };
 tester();
