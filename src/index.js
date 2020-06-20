@@ -1,8 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom";
-
-const App = () => {
-	return <div>Bruh Status</div>
-};
+import App from "./components/app.jsx";
 
 ReactDOM.render(<App />, document.querySelector("#app"));
