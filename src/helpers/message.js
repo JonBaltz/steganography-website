@@ -87,4 +87,4 @@ const tester = function() {
 	// console.log(t1.text, t2.text);
 	console.assert(m1.str2CharCodes().encryption("Wazzup").prepareToHide().afterReveal().encryption("Wazzup").charCodes2Str().text === "hello world", "the full sequence will not alter the original message by the end");
 };
-tester();
+// tester();
