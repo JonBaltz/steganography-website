@@ -5,4 +5,4 @@ const App = () => {
 	return <div>Bruh Status</div>
 };
 
-ReactDOM.render(<App />, document.querySelector("#root"));
+ReactDOM.render(<App />, document.querySelector("#app"));
