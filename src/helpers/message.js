@@ -4,7 +4,10 @@ class Message {
 		this.text = text;
 	}
 
-	// Ensures that the message only consists of alphanumeric characters and spaces
+	getText() {
+		return this.text;
+	}
+
 	isValid() {
 		return this.text.match("^[a-zA-Z0-9 ]*$") ? true : false;
 	}
@@ -16,36 +19,35 @@ class Message {
 			array[one] = array[two];
 			array[two] = temp;
 		};
-		const s = [];
-		const k = [];
+		const storage = [];
+		const longKey = [];
 		for (let i = 0; i < 256; i++) {
-			s[i] = i;
-			k[i] = key.charCodeAt(i % key.length) % 256;
+			storage[i] = i;
+			longKey[i] = key.charCodeAt(i % key.length) % 256;
 		}
-		let j = 0;
-		// Randomizes the s array using the k array
+		let targetIndex = 0;
+		// Randomizes the storage array by swapping values according to the longKey array
 		for (let i = 0; i < 256; i++) {
-			j = (j + s[i] + k[i]) % 256;
-			swap(s, i, j);
+			targetIndex = (targetIndex + storage[i] + longKey[i]) % 256;
+			swap(storage, i, targetIndex);
 		}
-		let l = j = 0;
-		// Skips the first 256 bytes because similar keys will have similar orders before 256
+		let fromIndex = targetIndex = 0;
+		// Skips the first 256 bytes because similar keys will have similar orders before then 
 		for (let i = 0; i < 256; i++) {
-			l = (l + 1) % 256;
-			j = (j + s[l]) % 256;
-			swap(s, l, j);
+			fromIndex = (fromIndex + 1) % 256;
+			targetIndex = (targetIndex + storage[fromIndex]) % 256;
+			swap(storage, fromIndex, targetIndex);
 		}
 		// Generates a key-byte, then runs XOR on the message string to encrypt it
 		for (let i = 0; i < this.text.length; i++) {
-			l = (l + 1) % 256;
-			j = (j + s[l]) % 256;
-			swap(s, l, j);
-			this.text[i] = this.text[i] ^ s[(s[l] + s[j]) % 256];
+			fromIndex = (fromIndex + 1) % 256;
+			targetIndex = (targetIndex + storage[fromIndex]) % 256;
+			swap(storage, fromIndex, targetIndex);
+			this.text[i] = this.text[i] ^ storage[(storage[fromIndex] + storage[targetIndex]) % 256];
 		}
 		return this;
 	}
 
-	// This just creates an array of character codes from a string
 	str2CharCodes() {
 		this.text = this.text.split("").map(char => char.charCodeAt(0));
 		return this;
@@ -70,21 +72,23 @@ class Message {
 	}
 };
 
+
 // Uncomment tester function to test code
 const tester = function() {
+	// -----!!!!!----- Testing the validation function -----!!!!!-----
 	const m1 = new Message("hello world");
 	console.assert(m1.isValid() === true, "a string of only letters is valid", m1.isValid());
 	const m2 = new Message("12345");
 	console.assert(m2.isValid() === true, "numbers are valid", m2.isValid());
 	const m3 = new Message("'\\\"[]");
 	console.assert(m3.isValid() === false, "special characters aren't valid", m3.isValid());
-	console.assert(m1.str2CharCodes().prepareToHide().afterReveal().charCodes2Str().text === "hello world", "conversion to binary and back works");
+	// -----!!!!!----- Testing the conversion to binary and back works properly -----!!!!!-----
+	console.assert(m1.str2CharCodes().prepareToHide().afterReveal().charCodes2Str().getText()=== "hello world", "conversion to binary and back works");
+	// -----!!!!!----- Testing the encryption function works -----!!!!!-----
 	const t1 = new Message("Wazzup world");
 	const t2 = new Message("Wazzup world");
-	console.assert(JSON.stringify(t1.str2CharCodes().encryption("password").encryption("password").text) === JSON.stringify(t2.str2CharCodes().text), "Running encryption twice with the same key results in the same text");
-	// console.log(t1.text, t2.text);
-	console.assert(JSON.stringify(t1.encryption("password1234").text) !== JSON.stringify(t2.encryption("1234password")), "running encryption with different keys will not return the same text");
-	// console.log(t1.text, t2.text);
-	console.assert(m1.str2CharCodes().encryption("Wazzup").prepareToHide().afterReveal().encryption("Wazzup").charCodes2Str().text === "hello world", "the full sequence will not alter the original message by the end");
+	console.assert(JSON.stringify(t1.str2CharCodes().encryption("password").encryption("password").getText()) === JSON.stringify(t2.str2CharCodes().getText()), "Running encryption twice with the same key results in the same text");
+	console.assert(JSON.stringify(t1.encryption("password1234").getText()) !== JSON.stringify(t2.encryption("1234password").getText()), "running encryption with different keys will not return the same text");
+	console.assert(m1.str2CharCodes().encryption("Wazzup").prepareToHide().afterReveal().encryption("Wazzup").charCodes2Str().getText()=== "hello world", "the full sequence will not alter the original message by the end");
 };
 // tester();
