@@ -58,10 +58,17 @@ module.exports = class Message {
 		return this;
 	}
 
-	// Converts character codes to 8 size zero padded binary strings, joins into a single string, and ends end-message flag
+	// Converts character codes to 7 size zero padded binary strings, joins into a single string, and adds end-message flag
 	prepareToHide() {
-		// FOR TESTING I USE .join(" ") BUT WHEN FINISHED USE .join("")
-		this.text = this.text.map((code) => code.toString(2)).join(" ");
+		this.text = this.text
+			.map((code) => {
+				let str = code.toString(2);
+				while (str.length < 7) {
+					str = "0" + str;
+				}
+				return str;
+			})
+			.join("");
 		return this;
 	}
 
