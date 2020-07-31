@@ -5,7 +5,9 @@
 	"main": "index.js",
 	"scripts": {
 		"start": "node index.js",
-		"build": "webpack -d --watch",
+		"build": "webpack",
+		"start-dev": "nodemon index.js",
+		"build-dev": "webpack -d --watch",
 		"test": "jest"
 	},
 	"repository": {
@@ -20,6 +22,7 @@
 	"homepage": "https://github.com/JonBaltz/steganography-website#readme",
 	"dependencies": {
 		"express": "^4.17.1",
+		"nodemon": "^2.0.4",
 		"react": "^16.13.1",
 		"react-dom": "^16.13.1"
 	},
