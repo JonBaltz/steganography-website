@@ -1,21 +1,8 @@
 import React, { useState, useEffect } from "react";
+import useForm from "./useForm.js";
 
 const Interactive = function (props) {
-	const [text, setText] = useState("");
-	const [password, setPassword] = useState("");
-
-	const handleChange = function (event) {
-		switch (event.target.name) {
-			case "text":
-				setText(event.target.value);
-				break;
-			case "password":
-				setPassword(event.target.value);
-				break;
-			default:
-				break;
-		}
-	};
+	const [{ text, password }, handleChange] = useForm({ text: "", password: "" });
 
 	return (
 		<div>
