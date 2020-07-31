@@ -63,7 +63,7 @@ module.exports = class Message {
 		this.text = this.text
 			.map((code) => {
 				let str = code.toString(2);
-				while (str.length < 7) {
+				while (str.length < 8) {
 					str = "0" + str;
 				}
 				return str;
@@ -78,44 +78,3 @@ module.exports = class Message {
 		return this;
 	}
 };
-
-// Uncomment tester function to test code
-const tester = function () {
-	// -----!!!!!----- Testing the validation function -----!!!!!-----
-	const m1 = new Message("hello world");
-	console.assert(m1.isValid() === true, "a string of only letters is valid", m1.isValid());
-	const m2 = new Message("12345");
-	console.assert(m2.isValid() === true, "numbers are valid", m2.isValid());
-	const m3 = new Message("'\\\"[]");
-	console.assert(m3.isValid() === false, "special characters aren't valid", m3.isValid());
-	// -----!!!!!----- Testing the conversion to binary and back works properly -----!!!!!-----
-	console.assert(
-		m1.str2CharCodes().prepareToHide().afterReveal().charCodes2Str().getText() === "hello world",
-		"conversion to binary and back works"
-	);
-	// -----!!!!!----- Testing the encryption function works -----!!!!!-----
-	const t1 = new Message("Wazzup world");
-	const t2 = new Message("Wazzup world");
-	console.assert(
-		JSON.stringify(t1.str2CharCodes().encryption("password").encryption("password").getText()) ===
-			JSON.stringify(t2.str2CharCodes().getText()),
-		"Running encryption twice with the same key results in the same text"
-	);
-	console.assert(
-		JSON.stringify(t1.encryption("password1234").getText()) !==
-			JSON.stringify(t2.encryption("1234password").getText()),
-		"running encryption with different keys will not return the same text"
-	);
-	console.assert(
-		m1
-			.str2CharCodes()
-			.encryption("Wazzup")
-			.prepareToHide()
-			.afterReveal()
-			.encryption("Wazzup")
-			.charCodes2Str()
-			.getText() === "hello world",
-		"the full sequence will not alter the original message by the end"
-	);
-};
-// tester();

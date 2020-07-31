@@ -6,7 +6,7 @@ describe("Testing Message Functionality", () => {
 		const binaryString = this.text;
 		let string = "";
 		for (let i = 0; i < binaryString.length; i++) {
-			string += i % 7 ? binaryString[i] : ` ${binaryString[i]}`;
+			string += i % 8 ? binaryString[i] : ` ${binaryString[i]}`;
 		}
 		this.text = string.substring(1);
 		return this;
@@ -23,11 +23,11 @@ describe("Testing Message Functionality", () => {
 
 	describe("chunk (used for testing)", () => {
 		test("should break strings into 8 character chunks seperated by a space", () => {
-			const binaryMessage = new Message("0000000111111122222223333333");
+			const binaryMessage = new Message("00000000111111112222222233333333");
 			binaryMessage.chunk = chunk;
 			const result = binaryMessage.chunk().getText().split(" ");
 			result.forEach((thing) => {
-				expect(thing.length).toBe(7);
+				expect(thing.length).toBe(8);
 			});
 		});
 	});
@@ -84,6 +84,34 @@ describe("Testing Message Functionality", () => {
 			expect(otherMessage.getText()).toBe("Wazzup World");
 			numberMessage.str2CharCodes().prepareToHide().chunk().afterReveal().charCodes2Str();
 			expect(numberMessage.getText()).toBe("123FooBar456");
+		});
+	});
+
+	describe("encryption", () => {
+		test("should decrypt the string when using the smae password", () => {
+			testMessage.str2CharCodes().encryption("Passw0rd123").encryption("Passw0rd123").charCodes2Str();
+			expect(testMessage.getText()).toBe("Hello World");
+		});
+
+		test("should not return the string if the password is different", () => {
+			testMessage.str2CharCodes().encryption("Passw0rd123").encryption("123Password").charCodes2Str();
+			expect(testMessage.getText()).not.toBe("Hello World");
+			otherMessage.str2CharCodes().encryption("Password").encryption("PAssword").charCodes2Str();
+			expect(otherMessage.getText()).not.toBe("Wazzup World");
+		});
+
+		test("should not alter the message when going through the entire sequence", () => {
+			const password = "Th1sIsAC0mpl3xPassw0rd";
+			testMessage.chunk = chunk;
+			testMessage
+				.str2CharCodes()
+				.encryption(password)
+				.prepareToHide()
+				.chunk()
+				.afterReveal()
+				.encryption(password)
+				.charCodes2Str();
+			expect(testMessage.getText()).toBe("Hello World");
 		});
 	});
 });
