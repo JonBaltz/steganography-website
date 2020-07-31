@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import useForm from "./useForm.js";
 
-const Interactive = function (props) {
+const Interactive = function ({ alert, setAlert }) {
 	const [{ text, password }, handleChange] = useForm({ text: "", password: "" });
+
+	useEffect(() => {
+		console.log("alert: ", alert);
+	}, [alert]);
 
 	return (
 		<div>
@@ -11,6 +15,7 @@ const Interactive = function (props) {
 			{text}
 			<input name="password" type="password" onChange={handleChange}></input>
 			{password}
+			<input name="alert" onChange={(e) => setAlert(e.target.value)}></input>
 		</div>
 	);
 };
